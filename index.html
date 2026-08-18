@@ -6,7 +6,9 @@
 <title>runtime.log</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 html,body{
   margin:0;
@@ -22,19 +24,27 @@ body{
   text-shadow:0 0 5px rgba(80,255,130,.28);
 }
 
+/* =========================================
+   CRT SCREEN
+========================================= */
+
 body::before{
   content:"";
   position:fixed;
   inset:0;
   z-index:500;
   pointer-events:none;
-  background:repeating-linear-gradient(
-    0deg,
-    rgba(255,255,255,.018) 0px,
-    rgba(255,255,255,.018) 1px,
-    transparent 2px,
-    transparent 4px
-  );
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.018) 0px,
+      rgba(255,255,255,.018) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+
+  opacity:.45;
 }
 
 body::after{
@@ -43,12 +53,21 @@ body::after{
   inset:0;
   z-index:501;
   pointer-events:none;
-  background:radial-gradient(
-    ellipse at center,
-    transparent 45%,
-    rgba(0,0,0,.55) 100%
-  );
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 45%,
+      rgba(0,0,0,.55) 100%
+    );
+
+  box-shadow:
+    inset 0 0 100px rgba(0,0,0,.8);
 }
+
+/* =========================================
+   MATRIX
+========================================= */
 
 canvas{
   position:fixed;
@@ -56,11 +75,16 @@ canvas{
   opacity:.08;
 }
 
+/* =========================================
+   APP
+========================================= */
+
 #app{
   position:relative;
   width:100%;
   height:100%;
   padding:18px;
+  overflow:hidden;
 }
 
 .top{
@@ -68,6 +92,7 @@ canvas{
   border-bottom:1px solid #163d23;
   color:#6d9d78;
   font-size:12px;
+
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -76,27 +101,45 @@ canvas{
 #log{
   height:calc(100% - 34px);
   padding-top:12px;
+
   overflow:hidden;
   white-space:pre;
+
   font-size:clamp(10px,1.15vw,14px);
   line-height:1.42;
 }
 
-.green{color:#8cffaa}
-.cyan{color:#73e9ff}
-.yellow{color:#e4d76a}
+.green{
+  color:#8cffaa;
+}
+
+.cyan{
+  color:#73e9ff;
+}
+
+.yellow{
+  color:#e4d76a;
+}
 
 .red{
   color:#ff5151;
-  text-shadow:0 0 9px rgba(255,40,40,.6);
+
+  text-shadow:
+    0 0 9px rgba(255,40,40,.6);
 }
+
+/* =========================================
+   PROGRESS
+========================================= */
 
 .bar{
   display:inline-block;
   width:240px;
   height:10px;
+
   border:1px solid #315e3d;
   padding:1px;
+
   vertical-align:middle;
 }
 
@@ -104,271 +147,246 @@ canvas{
   display:block;
   height:100%;
   width:0;
+
   background:#74ff94;
-  box-shadow:0 0 10px #74ff94;
+
+  box-shadow:
+    0 0 10px #74ff94;
 }
 
-/* ACCESS DENIED */
-
-#accessDenied{
-  position:fixed;
-  inset:0;
-  z-index:700;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.88);
-  color:#ff3b3b;
-  font-size:clamp(45px,10vw,120px);
-  font-weight:bold;
-  letter-spacing:7px;
-  text-shadow:
-    0 0 12px red,
-    0 0 35px red;
-}
-
-#accessDenied.show{
-  display:flex;
-  animation:accessFlash .45s infinite;
-}
-
-@keyframes accessFlash{
-  0%,100%{opacity:1}
-  50%{opacity:.45}
-}
-
-/* NOTIFICATIONS */
-
-#notifications{
-  position:fixed;
-  top:16px;
-  right:16px;
-  z-index:800;
-  width:360px;
-  max-width:calc(100vw - 32px);
-  display:flex;
-  flex-direction:column;
-  gap:9px;
-  pointer-events:none;
-}
-
-.notification{
-  direction:ltr;
-  display:grid;
-  grid-template-columns:36px 1fr;
-  gap:11px;
-  padding:13px 14px;
-  background:rgba(32,33,36,.97);
-  border:1px solid rgba(255,255,255,.09);
-  border-radius:10px;
-  color:#e8eaed;
-  font-family:Arial,"Segoe UI",sans-serif;
-  box-shadow:0 5px 22px rgba(0,0,0,.55);
-  transform:translateX(120%);
-  opacity:0;
-  animation:notifIn .28s ease forwards;
-}
-
-.notification.rtl{
-  direction:rtl;
-  text-align:right;
-}
-
-.notification .icon{
-  width:36px;
-  height:36px;
-  border-radius:8px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#ea4335;
-  color:#fff;
-  font-size:20px;
-  font-weight:bold;
-}
-
-.notification .sender{
-  font-size:12px;
-  color:#bdc1c6;
-  margin-bottom:4px;
-}
-
-.notification .title{
-  font-size:13px;
-  font-weight:600;
-  color:#f1f3f4;
-  margin-bottom:3px;
-}
-
-.notification .message{
-  font-size:12px;
-  line-height:1.45;
-  color:#bdc1c6;
-}
-
-.notification .time{
-  color:#80868b;
-  font-size:10px;
-  margin-left:5px;
-}
-
-.notification.out{
-  animation:notifOut .25s ease forwards;
-}
-
-@keyframes notifIn{
-  from{
-    transform:translateX(120%);
-    opacity:0;
-  }
-  to{
-    transform:translateX(0);
-    opacity:1;
-  }
-}
-
-@keyframes notifOut{
-  to{
-    transform:translateX(120%);
-    opacity:0;
-  }
-}
-
-/* CRITICAL */
-
-#critical{
-  position:fixed;
-  inset:0;
-  z-index:850;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  background:#050000;
-  color:#ff3030;
-  text-align:center;
-}
-
-#critical.show{
-  display:flex;
-}
-
-#critical .main{
-  font-size:clamp(28px,6vw,80px);
-  font-weight:bold;
-  letter-spacing:8px;
-  text-shadow:
-    0 0 10px red,
-    0 0 35px red;
-}
-
-#critical .sub{
-  margin-top:16px;
-  color:#8b2929;
-  font-size:clamp(10px,1.5vw,16px);
-  letter-spacing:3px;
-}
-
-/* COUNTDOWN */
+/* =========================================
+   COUNTDOWN
+========================================= */
 
 #countdown{
   position:fixed;
   inset:0;
-  z-index:900;
+  z-index:20;
+
   display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.96);
+
+  background:rgba(0,0,0,.94);
+
   color:#ff3434;
-  font-size:clamp(120px,28vw,300px);
+
+  font-size:
+    clamp(120px,28vw,300px);
+
   text-shadow:
-    0 0 25px red,
-    0 0 60px red;
+    0 0 35px red;
 }
 
 .hidden{
   display:none!important;
 }
 
-/* GLITCH */
+/* =========================================
+   FULLSCREEN START SCREEN
+========================================= */
+
+#startScreen{
+  position:fixed;
+  inset:0;
+  z-index:900;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  flex-direction:column;
+
+  background:#020403;
+
+  cursor:pointer;
+
+  text-align:center;
+}
+
+#startScreen .title{
+  font-size:clamp(25px,5vw,60px);
+
+  color:#8cffaa;
+
+  letter-spacing:8px;
+
+  text-shadow:
+    0 0 10px #4cff78,
+    0 0 30px rgba(50,255,100,.5);
+}
+
+#startScreen .sub{
+  margin-top:20px;
+
+  color:#557c60;
+
+  font-size:12px;
+
+  letter-spacing:3px;
+}
+
+#startScreen .blink{
+  margin-top:35px;
+
+  color:#73e9ff;
+
+  animation:blink .8s infinite;
+}
+
+/* =========================================
+   SHAKE
+========================================= */
+
+.shake{
+  animation:shake .07s infinite;
+}
+
+.flash{
+  animation:flash .11s infinite;
+}
+
+@keyframes shake{
+
+  25%{
+    transform:translate(4px,-2px);
+  }
+
+  50%{
+    transform:translate(-4px,3px);
+  }
+
+  75%{
+    transform:translate(3px,1px);
+  }
+
+}
+
+@keyframes flash{
+
+  50%{
+    opacity:.08;
+  }
+
+}
+
+@keyframes blink{
+
+  50%{
+    opacity:0;
+  }
+
+}
+
+/* =========================================
+   GLITCH
+========================================= */
 
 #glitch{
   position:fixed;
   inset:0;
+
   z-index:999;
+
   display:none;
+
   background:#000;
+
   pointer-events:none;
 }
 
 #glitch::before{
   content:"";
+
   position:absolute;
   inset:0;
-  background:repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 3px,
-    rgba(255,255,255,.09) 4px
-  );
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(255,255,255,.09) 4px
+    );
 }
 
 #glitch::after{
   content:"";
+
   position:absolute;
   inset:0;
-  background:linear-gradient(
-    90deg,
-    transparent,
-    rgba(255,0,0,.35),
-    transparent
-  );
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,0,0,.3) 48%,
+      transparent 52%
+    );
 }
 
 .glitch-active{
   display:block!important;
-  animation:glitch .07s infinite;
+
+  animation:
+    glitchScreen .08s infinite;
 }
 
-@keyframes glitch{
+@keyframes glitchScreen{
+
   0%{
     transform:translate(0);
     filter:none;
   }
 
-  25%{
-    transform:translate(-12px,3px);
+  20%{
+    transform:translate(-15px,4px);
     filter:hue-rotate(90deg) contrast(2);
   }
 
-  50%{
-    transform:translate(10px,-4px);
-    filter:contrast(3);
+  40%{
+    transform:translate(12px,-5px);
+    filter:invert(.2) contrast(3);
   }
 
-  75%{
-    transform:translate(-7px,5px);
+  60%{
+    transform:translate(-8px,7px);
     filter:hue-rotate(180deg);
+  }
+
+  80%{
+    transform:translate(10px,-6px);
+    filter:contrast(4);
   }
 
   100%{
     transform:translate(0);
     filter:none;
   }
+
 }
 
-/* SYSTEM FAILURE */
+/* =========================================
+   SYSTEM FAILURE
+========================================= */
 
 #crash{
   position:fixed;
   inset:0;
+
   z-index:1000;
+
   display:none;
+
   align-items:center;
   justify-content:center;
+
   flex-direction:column;
+
   background:#000;
+
   text-align:center;
+
   color:#ff3030;
 }
 
@@ -377,9 +395,13 @@ canvas{
 }
 
 #crash .title{
-  font-size:clamp(30px,6vw,80px);
+  font-size:
+    clamp(30px,6vw,80px);
+
   font-weight:bold;
+
   letter-spacing:8px;
+
   text-shadow:
     0 0 10px red,
     0 0 30px red,
@@ -388,69 +410,214 @@ canvas{
 
 #crash .sub{
   margin-top:18px;
-  color:#555;
-  font-size:clamp(10px,1.5vw,16px);
+
+  font-size:
+    clamp(10px,1.5vw,16px);
+
+  color:#666;
+
   letter-spacing:3px;
 }
 
-.shake{
-  animation:shake .06s infinite;
+#crash .cursor{
+  display:inline-block;
+
+  width:8px;
+  height:18px;
+
+  background:#ff3030;
+
+  margin-left:5px;
+
+  animation:blink .6s infinite;
 }
 
-.flash{
-  animation:flash .08s infinite;
+/* =========================================
+   CONNECTION TERMINATED
+========================================= */
+
+#terminated{
+  position:fixed;
+  inset:0;
+
+  z-index:1100;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  background:#000;
+
+  color:#777;
+
+  font-family:
+    "Courier New",
+    monospace;
+
+  font-size:
+    clamp(10px,1.2vw,15px);
+
+  letter-spacing:4px;
+
+  opacity:0;
 }
 
-@keyframes shake{
-  25%{transform:translate(4px,-2px)}
-  50%{transform:translate(-4px,3px)}
-  75%{transform:translate(3px,1px)}
+#terminated.show{
+  display:flex;
+
+  animation:
+    terminalFade 2s forwards;
 }
 
-@keyframes flash{
-  50%{opacity:.08}
+@keyframes terminalFade{
+
+  0%{
+    opacity:0;
+  }
+
+  30%{
+    opacity:.8;
+  }
+
+  70%{
+    opacity:.8;
+  }
+
+  100%{
+    opacity:0;
+  }
+
+}
+
+/* =========================================
+   CAMERA FAKE INDICATOR
+========================================= */
+
+#camera{
+  position:fixed;
+
+  right:20px;
+  bottom:18px;
+
+  z-index:600;
+
+  color:#777;
+
+  font-size:10px;
+
+  display:none;
+}
+
+#camera.active{
+  display:block;
+}
+
+#camera .dot{
+  display:inline-block;
+
+  width:7px;
+  height:7px;
+
+  border-radius:50%;
+
+  background:#ff3333;
+
+  box-shadow:
+    0 0 8px red;
+
+  margin-right:5px;
+
+  animation:blink .7s infinite;
 }
 </style>
 </head>
 
 <body>
 
+<!-- =========================================
+     START
+========================================= -->
+
+<div id="startScreen">
+
+  <div class="title">
+    RUNTIME
+  </div>
+
+  <div class="sub">
+    SECURE DIAGNOSTIC ENVIRONMENT
+  </div>
+
+  <div class="blink">
+    [ CLICK TO INITIALIZE ]
+  </div>
+
+</div>
+
+
+<!-- =========================================
+     MATRIX
+========================================= -->
+
 <canvas id="matrix"></canvas>
+
+
+<!-- =========================================
+     MAIN APP
+========================================= -->
 
 <div id="app">
 
   <div class="top">
-    <span>runtime/diagnostic</span>
-    <span id="time">00:00.000</span>
+
+    <span>
+      runtime/diagnostic
+    </span>
+
+    <span id="time">
+      00:00.000
+    </span>
+
   </div>
 
   <div id="log"></div>
 
 </div>
 
-<div id="notifications"></div>
 
-<div id="accessDenied">
-  ACCESS DENIED
-</div>
-
-<div id="critical">
-
-  <div class="main">
-    !!! CRITICAL !!!
-  </div>
-
-  <div class="sub">
-    SESSION STATE INVALID
-  </div>
-
-</div>
+<!-- =========================================
+     COUNTDOWN
+========================================= -->
 
 <div id="countdown" class="hidden">
   3
 </div>
 
+
+<!-- =========================================
+     CAMERA INDICATOR
+========================================= -->
+
+<div id="camera">
+
+  <span class="dot"></span>
+
+  CAMERA DEVICE ACTIVE
+
+</div>
+
+
+<!-- =========================================
+     GLITCH
+========================================= -->
+
 <div id="glitch"></div>
+
+
+<!-- =========================================
+     CRASH
+========================================= -->
 
 <div id="crash">
 
@@ -460,37 +627,83 @@ canvas{
 
   <div class="sub">
     runtime terminated unexpectedly
+    <span class="cursor"></span>
   </div>
 
 </div>
 
+
+<!-- =========================================
+     TERMINATED
+========================================= -->
+
+<div id="terminated">
+  connection terminated.
+</div>
+
+
 <script>
 
+/* =========================================
+   GLOBALS
+========================================= */
+
 let audio=null;
+
+let started=false;
+
+const timerStart =
+  performance.now();
+
+
+/* =========================================
+   AUDIO INITIALIZATION
+========================================= */
 
 function initAudio(){
 
   if(!audio){
-    audio=new(
-      window.AudioContext||
-      window.webkitAudioContext
-    )();
+
+    audio =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
   }
 
-  if(audio.state==="suspended"){
+  if(
+    audio.state === "suspended"
+  ){
+
     audio.resume();
+
   }
+
 }
+
+
+/* =========================================
+   KEY SOUND
+========================================= */
 
 function keySound(){
 
-  if(!audio)return;
+  if(!audio) return;
 
-  const osc=audio.createOscillator();
-  const gain=audio.createGain();
+  const osc =
+    audio.createOscillator();
+
+  const gain =
+    audio.createGain();
+
 
   osc.type="square";
-  osc.frequency.value=420+Math.random()*300;
+
+  osc.frequency.value =
+    420 +
+    Math.random()*300;
+
 
   gain.gain.setValueAtTime(
     .018,
@@ -502,31 +715,52 @@ function keySound(){
     audio.currentTime+.035
   );
 
+
   osc.connect(gain);
-  gain.connect(audio.destination);
+
+  gain.connect(
+    audio.destination
+  );
+
 
   osc.start();
-  osc.stop(audio.currentTime+.04);
+
+  osc.stop(
+    audio.currentTime+.04
+  );
+
 }
 
-function diskSound(){
 
-  if(!audio)return;
+/* =========================================
+   SCAN SOUND
+========================================= */
 
-  const osc=audio.createOscillator();
-  const gain=audio.createGain();
+function scanSound(){
 
-  osc.type="triangle";
+  if(!audio) return;
+
+
+  const osc =
+    audio.createOscillator();
+
+  const gain =
+    audio.createGain();
+
+
+  osc.type="sine";
+
 
   osc.frequency.setValueAtTime(
-    90,
+    350,
     audio.currentTime
   );
 
   osc.frequency.exponentialRampToValueAtTime(
-    180,
-    audio.currentTime+.08
+    850,
+    audio.currentTime+.12
   );
+
 
   gain.gain.setValueAtTime(
     .025,
@@ -535,114 +769,102 @@ function diskSound(){
 
   gain.gain.exponentialRampToValueAtTime(
     .001,
-    audio.currentTime+.11
+    audio.currentTime+.14
   );
+
 
   osc.connect(gain);
-  gain.connect(audio.destination);
 
-  osc.start();
-  osc.stop(audio.currentTime+.12);
-}
-
-function beep(freq=700){
-
-  if(!audio)return;
-
-  const osc=audio.createOscillator();
-  const gain=audio.createGain();
-
-  osc.type="square";
-  osc.frequency.value=freq;
-
-  gain.gain.setValueAtTime(
-    .035,
-    audio.currentTime
+  gain.connect(
+    audio.destination
   );
 
-  gain.gain.exponentialRampToValueAtTime(
-    .001,
-    audio.currentTime+.08
-  );
-
-  osc.connect(gain);
-  gain.connect(audio.destination);
 
   osc.start();
-  osc.stop(audio.currentTime+.09);
+
+  osc.stop(
+    audio.currentTime+.15
+  );
+
 }
+
+
+/* =========================================
+   WARNING SOUND
+========================================= */
 
 function warningSound(){
 
-  if(!audio)return;
+  if(!audio) return;
 
-  [0,.14,.28].forEach(delay=>{
 
-    const osc=audio.createOscillator();
-    const gain=audio.createGain();
+  [0,.18,.36].forEach(
+    delay=>{
 
-    osc.type="square";
-    osc.frequency.value=880;
+      const osc =
+        audio.createOscillator();
 
-    gain.gain.setValueAtTime(
-      .035,
-      audio.currentTime+delay
-    );
+      const gain =
+        audio.createGain();
 
-    gain.gain.exponentialRampToValueAtTime(
-      .001,
-      audio.currentTime+delay+.1
-    );
 
-    osc.connect(gain);
-    gain.connect(audio.destination);
+      osc.type="square";
 
-    osc.start(audio.currentTime+delay);
+      osc.frequency.value=880;
 
-    osc.stop(
-      audio.currentTime+delay+.11
-    );
 
-  });
-}
+      gain.gain.setValueAtTime(
+        .035,
+        audio.currentTime+delay
+      );
 
-function countdownSound(final=false){
+      gain.gain.exponentialRampToValueAtTime(
+        .001,
+        audio.currentTime+delay+.1
+      );
 
-  if(!audio)return;
 
-  const osc=audio.createOscillator();
-  const gain=audio.createGain();
+      osc.connect(gain);
 
-  osc.type="square";
+      gain.connect(
+        audio.destination
+      );
 
-  osc.frequency.value=
-    final?1200:650;
 
-  gain.gain.setValueAtTime(
-    final?.07:.04,
-    audio.currentTime
+      osc.start(
+        audio.currentTime+delay
+      );
+
+      osc.stop(
+        audio.currentTime+
+        delay+
+        .11
+      );
+
+    }
   );
 
-  gain.gain.exponentialRampToValueAtTime(
-    .001,
-    audio.currentTime+.18
-  );
-
-  osc.connect(gain);
-  gain.connect(audio.destination);
-
-  osc.start();
-  osc.stop(audio.currentTime+.2);
 }
+
+
+/* =========================================
+   CRASH SOUND
+========================================= */
 
 function crashSound(){
 
-  if(!audio)return;
+  if(!audio) return;
 
-  const osc=audio.createOscillator();
-  const gain=audio.createGain();
+
+  const osc =
+    audio.createOscillator();
+
+  const gain =
+    audio.createGain();
+
 
   osc.type="sawtooth";
+
 
   osc.frequency.setValueAtTime(
     180,
@@ -650,9 +872,10 @@ function crashSound(){
   );
 
   osc.frequency.exponentialRampToValueAtTime(
-    25,
-    audio.currentTime+.65
+    30,
+    audio.currentTime+.7
   );
+
 
   gain.gain.setValueAtTime(
     .12,
@@ -661,489 +884,900 @@ function crashSound(){
 
   gain.gain.exponentialRampToValueAtTime(
     .001,
-    audio.currentTime+.65
+    audio.currentTime+.7
   );
 
+
   osc.connect(gain);
-  gain.connect(audio.destination);
+
+  gain.connect(
+    audio.destination
+  );
+
 
   osc.start();
-  osc.stop(audio.currentTime+.7);
+
+  osc.stop(
+    audio.currentTime+.75
+  );
+
 }
 
 
-/* CLOCK */
+/* =========================================
+   COUNTDOWN SOUND
+========================================= */
 
-const started=performance.now();
+function countdownSound(final=false){
+
+  if(!audio) return;
+
+
+  const osc =
+    audio.createOscillator();
+
+  const gain =
+    audio.createGain();
+
+
+  osc.type="square";
+
+
+  osc.frequency.value =
+    final ? 1200 : 650;
+
+
+  gain.gain.setValueAtTime(
+    final ? .07 : .04,
+    audio.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audio.currentTime+.18
+  );
+
+
+  osc.connect(gain);
+
+  gain.connect(
+    audio.destination
+  );
+
+
+  osc.start();
+
+  osc.stop(
+    audio.currentTime+.2
+  );
+
+}
+
+
+/* =========================================
+   FULLSCREEN
+========================================= */
+
+async function enterFullscreen(){
+
+  try{
+
+    if(
+      !document.fullscreenElement
+    ){
+
+      await document.documentElement
+        .requestFullscreen();
+
+    }
+
+  }catch(e){
+
+    console.log(
+      "Fullscreen unavailable"
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   START SCREEN
+========================================= */
+
+document
+  .getElementById("startScreen")
+  .addEventListener(
+    "click",
+    async()=>{
+
+      if(started) return;
+
+      started=true;
+
+      initAudio();
+
+      await enterFullscreen();
+
+
+      document
+        .getElementById(
+          "startScreen"
+        )
+        .style.display="none";
+
+
+      run();
+
+    }
+  );
+
+
+/* =========================================
+   CLOCK
+========================================= */
 
 setInterval(()=>{
 
-  const t=performance.now()-started;
-  const s=Math.floor(t/1000);
-  const ms=Math.floor(t%1000);
+  const t =
+    performance.now()-
+    timerStart;
 
-  document.getElementById("time")
-    .textContent=
-    `00:${String(s).padStart(2,"0")}.${String(ms).padStart(3,"0")}`;
+
+  const s =
+    Math.floor(
+      t/1000
+    );
+
+
+  const ms =
+    Math.floor(
+      t%1000
+    );
+
+
+  document
+    .getElementById("time")
+    .textContent =
+      `00:${String(s)
+        .padStart(2,"0")}.${String(ms)
+        .padStart(3,"0")}`;
+
 
 },20);
 
 
-/* MATRIX */
+/* =========================================
+   MATRIX
+========================================= */
 
-const canvas=
-  document.getElementById("matrix");
+const canvas =
+  document.getElementById(
+    "matrix"
+  );
 
-const ctx=canvas.getContext("2d");
+
+const ctx =
+  canvas.getContext("2d");
+
 
 function resize(){
 
-  canvas.width=innerWidth;
-  canvas.height=innerHeight;
+  canvas.width=
+    innerWidth;
+
+  canvas.height=
+    innerHeight;
 
 }
+
 
 resize();
 
-addEventListener("resize",resize);
 
-const chars="01ABCDEF#$%&@<>[]{}";
+addEventListener(
+  "resize",
+  resize
+);
+
+
+const chars =
+  "01ABCDEF#$%&@<>[]{}";
+
 
 let drops=[];
 
+
 function resetDrops(){
 
-  drops=Array(
-    Math.floor(innerWidth/15)
-  ).fill(1);
+  drops =
+    Array(
+      Math.floor(
+        innerWidth/15
+      )
+    ).fill(1);
 
 }
 
+
 resetDrops();
+
 
 setInterval(()=>{
 
-  ctx.fillStyle="rgba(0,0,0,.09)";
+  ctx.fillStyle=
+    "rgba(0,0,0,.09)";
+
 
   ctx.fillRect(
-    0,0,
+    0,
+    0,
     canvas.width,
     canvas.height
   );
 
-  ctx.fillStyle="#19ff68";
-  ctx.font="14px monospace";
 
-  for(let i=0;i<drops.length;i++){
+  ctx.fillStyle=
+    "#19ff68";
+
+
+  ctx.font=
+    "14px monospace";
+
+
+  for(
+    let i=0;
+    i<drops.length;
+    i++
+  ){
 
     ctx.fillText(
+
       chars[
         Math.floor(
-          Math.random()*chars.length
+          Math.random()*
+          chars.length
         )
       ],
+
       i*15,
+
       drops[i]*15
+
     );
 
+
     if(
-      drops[i]*15>canvas.height &&
+      drops[i]*15 >
+      canvas.height &&
       Math.random()>.97
     ){
+
       drops[i]=0;
+
     }
 
+
     drops[i]++;
+
   }
 
 },40);
 
 
-/* HELPERS */
+/* =========================================
+   TERMINAL
+========================================= */
 
-const log=document.getElementById("log");
+const log =
+  document.getElementById(
+    "log"
+  );
+
 
 function wait(ms){
-  return new Promise(r=>setTimeout(r,ms));
+
+  return new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        ms
+      )
+  );
+
 }
 
-function line(text="",cls=""){
 
-  const d=document.createElement("div");
+function line(
+  text="",
+  cls=""
+){
+
+  const d =
+    document.createElement(
+      "div"
+    );
+
 
   d.className=cls;
+
   d.textContent=text;
+
 
   log.appendChild(d);
 
-  log.scrollTop=log.scrollHeight;
+
+  log.scrollTop=
+    log.scrollHeight;
+
 
   keySound();
+
 }
+
+
+/* =========================================
+   PROGRESS BAR
+========================================= */
+
+function progress(
+  label,
+  duration
+){
+
+  return new Promise(
+    resolve=>{
+
+      const d =
+        document.createElement(
+          "div"
+        );
+
+
+      const bar =
+        document.createElement(
+          "span"
+        );
+
+
+      const fill =
+        document.createElement(
+          "span"
+        );
+
+
+      bar.className="bar";
+
+      fill.className="fill";
+
+
+      bar.appendChild(
+        fill
+      );
+
+
+      d.append(
+        document.createTextNode(
+          label+" "
+        ),
+        bar
+      );
+
+
+      log.appendChild(d);
+
+
+      scanSound();
+
+
+      const start =
+        performance.now();
+
+
+      function update(){
+
+        const p =
+          Math.min(
+            1,
+            (
+              performance.now()-
+              start
+            )/duration
+          );
+
+
+        fill.style.width =
+          (p*100)+"%";
+
+
+        if(p<1){
+
+          requestAnimationFrame(
+            update
+          );
+
+        }else{
+
+          resolve();
+
+        }
+
+      }
+
+
+      requestAnimationFrame(
+        update
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================
+   HEX DATA
+========================================= */
 
 function hex(n=8){
 
-  const chars="0123456789ABCDEF";
+  const chars=
+    "0123456789ABCDEF";
+
 
   let s="";
 
-  for(let i=0;i<n;i++){
 
-    s+=chars[
-      Math.floor(
-        Math.random()*chars.length
-      )
-    ];
+  for(
+    let i=0;
+    i<n;
+    i++
+  ){
+
+    s+=
+      chars[
+        Math.floor(
+          Math.random()*16
+        )
+      ];
 
   }
 
+
   return s;
+
 }
 
 
-/* PROGRESS */
+const bytes=[
 
-function progress(label,duration){
+  "7F 45 4C 46 02 01 01 00",
 
-  return new Promise(resolve=>{
+  "48 8B 05 91 2A 00 00 48",
 
-    const d=document.createElement("div");
-    const bar=document.createElement("span");
-    const fill=document.createElement("span");
+  "31 C0 48 89 E7 E8 19 00",
 
-    bar.className="bar";
-    fill.className="fill";
+  "FF 25 72 10 00 00 90 90",
 
-    bar.appendChild(fill);
+  "0F 1F 84 00 00 00 00 00",
 
-    d.append(
-      document.createTextNode(label+" "),
-      bar
-    );
+  "55 48 89 E5 48 83 EC 30"
 
-    log.appendChild(d);
-
-    diskSound();
-
-    const start=performance.now();
-
-    function update(){
-
-      const p=Math.min(
-        1,
-        (performance.now()-start)/duration
-      );
-
-      fill.style.width=(p*100)+"%";
-
-      if(p<1){
-
-        requestAnimationFrame(update);
-
-      }else{
-
-        resolve();
-
-      }
-    }
-
-    requestAnimationFrame(update);
-
-  });
-}
+];
 
 
-/* NOTIFICATIONS */
-
-async function notify(
-  rtl,
-  sender,
-  title,
-  message
-){
-
-  const container=
-    document.getElementById("notifications");
-
-  const n=document.createElement("div");
-
-  n.className=
-    "notification"+
-    (rtl?" rtl":"");
-
-  n.innerHTML=`
-
-    <div class="icon">!</div>
-
-    <div>
-
-      <div class="sender">
-        ${sender}
-        <span class="time">now</span>
-      </div>
-
-      <div class="title">
-        ${title}
-      </div>
-
-      <div class="message">
-        ${message}
-      </div>
-
-    </div>
-  `;
-
-  container.appendChild(n);
-
-  warningSound();
-
-  await wait(2500);
-
-  n.classList.add("out");
-
-  await wait(300);
-
-  n.remove();
-}
-
-
-/* ACCESS DENIED */
-
-async function accessDenied(){
-
-  const el=
-    document.getElementById(
-      "accessDenied"
-    );
-
-  beep(300);
-
-  el.classList.add("show");
-
-  await wait(450);
-
-  el.classList.remove("show");
-}
-
-
-/* MAIN */
+/* =========================================
+   MAIN SEQUENCE
+========================================= */
 
 async function run(){
 
   initAudio();
+
 
   line(
     "$ ./runtime --attach --quiet",
     "cyan"
   );
 
-  await wait(100);
+
+  await wait(70);
+
 
   line(
-    "[000] session=0x"+hex(10)
+    "[000] pid=4812 tid=07 arch=x86_64"
   );
 
-  await wait(80);
 
   line(
-    "[001] arch=x86_64 pid="+
-    (4000+Math.floor(Math.random()*5000))
+    "[001] ctx=0x"+
+    hex(12)+
+    " sp=0x"+
+    hex(12)
   );
 
-  await wait(80);
 
-  line(
-    "[002] initializing network trace..."
-  );
+  await wait(70);
 
-  await wait(100);
 
-  line(
-    "[003] node_01  10.0."+Math.floor(Math.random()*255)+".1  CONNECTED",
-    "green"
-  );
+/* =========================================
+   MEMORY
+========================================= */
 
-  await wait(90);
+  for(
+    let i=0;
+    i<3;
+    i++
+  ){
 
-  line(
-    "[004] node_02  172.16."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)+"  CONNECTED",
-    "green"
-  );
+    line(
+      `[${String(i+2)
+        .padStart(3,"0")}] `+
+      `0x00${hex(6)} `+
+      bytes[i]
+    );
 
-  await wait(90);
 
-  line(
-    "[005] relay_01 192.168."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255),
-    "cyan"
-  );
+    await wait(65);
 
-  await wait(80);
+  }
 
-  line(
-    "[006] route status=ACTIVE",
-    "green"
-  );
-
-  notify(
-    true,
-    "Runtime Security",
-    "هشدار امنیتی",
-    "بررسی وضعیت نشست انجام شد."
-  );
 
   await progress(
-    "[007] scanning environment",
-    350
+    "[005] resolving symbols",
+    280
   );
 
-  line(
-    "[008] browser cache ............ OK"
+
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
+
+    line(
+      `[${String(i+6)
+        .padStart(3,"0")}] `+
+      `map=0x${hex(8)} `+
+      `len=0x${hex(4)} `+
+      `perm=r-x`
+    );
+
+
+    await wait(60);
+
+  }
+
+
+  await progress(
+    "[010] parsing memory segments",
+    300
   );
 
-  await wait(80);
+
+  for(
+    let i=0;
+    i<5;
+    i++
+  ){
+
+    line(
+      `[${String(i+11)
+        .padStart(3,"0")}] `+
+      `addr=0x${hex(12)} `+
+      `state=0x${hex(2)}`
+    );
+
+
+    await wait(55);
+
+  }
+
+
+/* =========================================
+   CAMERA
+========================================= */
 
   line(
-    "[009] local storage ........... OK"
+    "[016] scanning hardware interfaces..."
   );
 
-  await wait(80);
+
+  await wait(120);
+
 
   line(
-    "[010] temporary data .......... OK"
-  );
-
-  await wait(80);
-
-  line(
-    "[011] protected area .......... LOCKED",
+    "[017] video device detected",
     "yellow"
   );
 
-  await accessDenied();
 
-  notify(
-    false,
-    "Runtime Security",
-    "Security Check",
-    "Additional verification required."
-  );
-
-  await progress(
-    "[012] analyzing packet stream",
-    350
-  );
-
-  line(
-    "[013] packet_01 ............... RECEIVED"
-  );
-
-  await wait(70);
-
-  line(
-    "[014] packet_02 ............... RECEIVED"
-  );
-
-  await wait(70);
-
-  line(
-    "[015] packet_03 ............... RECEIVED"
-  );
-
-  await wait(70);
-
-  line(
-    "[016] route integrity .......... VERIFIED",
-    "green"
-  );
-
-  notify(
-    true,
-    "Runtime Security",
-    "هشدار نهایی",
-    "آخرین مرحله بررسی در حال اجراست."
-  );
-
-  await progress(
-    "[017] preparing encrypted_state",
-    350
-  );
-
-  line(
-    "[018] decrypting_data.bin"
-  );
-
-  await wait(150);
-
-  line(
-    "[019] decrypt progress ........ 99%",
-    "yellow"
-  );
-
-  await wait(180);
+  await wait(100);
 
 
-  /* CRITICAL */
-
-  const critical=
-    document.getElementById("critical");
-
-  critical.classList.add("show");
-
-  warningSound();
-
-  await wait(500);
-
-  critical.classList.remove("show");
+  document
+    .getElementById("camera")
+    .classList.add("active");
 
 
   line(
-    "[FINAL] session sequence complete",
+    "[018] camera device initialized",
     "red"
   );
 
-  await wait(180);
+
+  await wait(120);
 
 
-  /* GLITCH */
+  document
+    .getElementById("camera")
+    .classList.remove("active");
 
-  const glitch=
-    document.getElementById("glitch");
 
-  glitch.classList.add(
-    "glitch-active"
+  line(
+    "[019] camera interface released",
+    "green"
   );
+
+
+/* =========================================
+   NETWORK TRACE
+========================================= */
+
+  await progress(
+    "[020] initializing network trace",
+    350
+  );
+
+
+  line(
+    "[021] interface=eth0 state=UP",
+    "cyan"
+  );
+
+
+  await wait(70);
+
+
+  line(
+    `[022] local=192.168.1.${Math.floor(
+      10+Math.random()*200
+    )}`
+  );
+
+
+  await wait(70);
+
+
+  line(
+    "[023] gateway=192.168.1.1"
+  );
+
+
+  await wait(70);
+
+
+  line(
+    "[024] resolving remote endpoint..."
+  );
+
+
+  await wait(120);
+
+
+  line(
+    `[025] remote=185.${Math.floor(
+      Math.random()*255
+    )}.${Math.floor(
+      Math.random()*255
+    )}.${Math.floor(
+      Math.random()*255
+    )}`,
+    "cyan"
+  );
+
+
+  await wait(100);
+
+
+  line(
+    "[026] route established",
+    "green"
+  );
+
+
+  await progress(
+    "[027] packet stream analysis",
+    320
+  );
+
+
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
+
+    line(
+      `[${String(28+i)
+        .padStart(3,"0")}] `+
+      `packet=0x${hex(8)} `+
+      `size=${64+
+        Math.floor(
+          Math.random()*1400
+        )}B `+
+      `ttl=${32+
+        Math.floor(
+          Math.random()*64
+        )}`
+    );
+
+
+    await wait(60);
+
+  }
+
+
+/* =========================================
+   STATE
+========================================= */
+
+  line(
+    `[032] checksum=0x${hex(8)} `+
+    `entropy=7.${hex(4)}`
+  );
+
+
+  await progress(
+    "[033] validating execution context",
+    300
+  );
+
+
+  line(
+    `[034] rsp=0x${hex(12)} `+
+    `rbp=0x${hex(12)}`
+  );
+
+
+  line(
+    `[035] flags=0x${hex(4)} `+
+    `state=0x${hex(2)}`
+  );
+
+
+  line(
+    `[036] nonce=${hex(24)}`
+  );
+
+
+  await wait(80);
+
+
+  line(
+    `[037] digest=${hex(32)}`,
+    "cyan"
+  );
+
+
+  await progress(
+    "[038] rebuilding state vector",
+    300
+  );
+
+
+  line(
+    `[039] frame=0x${hex(16)}`
+  );
+
+
+  line(
+    `[040] return=0x${hex(12)}`
+  );
+
+
+  await wait(90);
+
+
+  line(
+    "[041] state transition: 0x03 -> 0x04",
+    "green"
+  );
+
+
+  await progress(
+    "[042] committing state",
+    280
+  );
+
+
+  line(
+    `[043] seq=${hex(10)} `+
+    `status=0x${hex(2)}`
+  );
+
+
+  warningSound();
+
+
+  await wait(120);
+
+
+  line(
+    "[044] integrity boundary crossed",
+    "red"
+  );
+
 
   document.body.classList.add(
     "shake"
   );
 
-  beep(1100);
 
-  await wait(220);
+  await wait(180);
 
-  glitch.classList.remove(
-    "glitch-active"
-  );
 
   document.body.classList.remove(
     "shake"
   );
 
-  await wait(120);
+
+  line(
+    `[045] session=${hex(16)}`,
+    "cyan"
+  );
 
 
-  /* COUNTDOWN */
+  line(
+    "[046] transition pending...",
+    "yellow"
+  );
 
-  const cd=
-    document.getElementById("countdown");
 
-  cd.classList.remove("hidden");
+  await wait(100);
 
-  for(let n=3;n>=1;n--){
+
+  line(
+    `[047] finalize=0x${hex(8)}`,
+    "red"
+  );
+
+
+  warningSound();
+
+
+  await wait(150);
+
+
+/* =========================================
+   COUNTDOWN
+========================================= */
+
+  const cd =
+    document.getElementById(
+      "countdown"
+    );
+
+
+  cd.classList.remove(
+    "hidden"
+  );
+
+
+  for(
+    let n=3;
+    n>=1;
+    n--
+  ){
 
     cd.textContent=n;
 
-    countdownSound(n===1);
+
+    countdownSound(
+      n===1
+    );
+
 
     if(n===1){
 
@@ -1153,78 +1787,209 @@ async function run(){
 
     }
 
-    await wait(450);
+
+    await wait(1000);
+
   }
+
+
+  cd.textContent="";
+
+
+  cd.classList.add(
+    "flash"
+  );
+
+
+  countdownSound(true);
+
+
+  await wait(350);
+
 
   document.body.classList.remove(
     "shake"
   );
 
-  cd.textContent="";
 
-  cd.classList.add("flash");
+/* =========================================
+   FINAL GLITCH
+========================================= */
 
-  await wait(100);
+  const glitch =
+    document.getElementById(
+      "glitch"
+    );
 
 
-  /* FINAL GLITCH */
+  const crash =
+    document.getElementById(
+      "crash"
+    );
+
+
+  const terminated =
+    document.getElementById(
+      "terminated"
+    );
+
+
+  cd.classList.add(
+    "hidden"
+  );
+
+
+  /* شدیدترین لرزش */
+
+  document.body.classList.add(
+    "shake"
+  );
+
+
+  /* Glitch */
 
   glitch.classList.add(
     "glitch-active"
   );
 
+
+  warningSound();
+
   crashSound();
 
-  await wait(220);
 
-  cd.classList.add("hidden");
+  /* rapid visual corruption */
+
+  for(
+    let i=0;
+    i<14;
+    i++
+  ){
+
+    await wait(55);
+
+
+    if(i%2===0){
+
+      document.body.style.filter =
+        "invert(.25) contrast(3) " +
+        "hue-rotate(90deg)";
+
+    }else{
+
+      document.body.style.filter =
+        "none";
+
+    }
+
+  }
+
+
+  document.body.classList.remove(
+    "shake"
+  );
+
+
+  document.body.style.filter=
+    "none";
+
 
   glitch.classList.remove(
     "glitch-active"
   );
 
-  document.getElementById(
-    "app"
-  ).style.display="none";
+
+/* =========================================
+   SYSTEM FAILURE
+========================================= */
+
+  document
+    .getElementById("app")
+    .style.display="none";
+
 
   canvas.style.display="none";
 
 
-  /* SYSTEM FAILURE */
-
-  const crash=
-    document.getElementById("crash");
-
-  crash.classList.add("show");
-
-  await wait(700);
+  await wait(100);
 
 
-  /* BLACKOUT */
+  crash.classList.add(
+    "show"
+  );
+
+
+  await wait(1900);
+
+
+/* =========================================
+   FINAL BLACKOUT
+========================================= */
+
+  crash.classList.remove(
+    "show"
+  );
+
+
+  document.body.style.background=
+    "#000";
+
+
+  await wait(350);
+
+
+/* =========================================
+   CONNECTION TERMINATED
+========================================= */
+
+  terminated.classList.add(
+    "show"
+  );
+
+
+  await wait(2100);
+
+
+  terminated.classList.remove(
+    "show"
+  );
+
+
+/* =========================================
+   TOTAL BLACKOUT
+========================================= */
+
+  document.body.style.cursor=
+    "none";
+
 
   document.body.innerHTML="";
 
-  document.body.style.background="#000";
 
-  document.body.style.cursor="none";
+  document.body.style.background=
+    "#000";
 
 
-  /*
-    Try to close the tab.
-    Browsers may block this if the tab
-    was not opened by JavaScript.
-  */
+  await wait(1000);
 
-  await wait(300);
 
-  window.close();
+/* =========================================
+   CLOSE
+========================================= */
+
+  try{
+
+    window.close();
+
+  }catch(e){
+
+    console.log(
+      "Browser blocked window.close()"
+    );
+
+  }
 
 }
-
-
-/* AUTO START */
-
-run();
 
 </script>
 
