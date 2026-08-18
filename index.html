@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>runtime.log</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#020403;
+  color:#b7ffca;
+  font-family:"Courier New",Consolas,monospace;
+}
+
+body{
+  text-shadow:0 0 5px rgba(80,255,130,.28);
+}
+
+canvas{
+  position:fixed;
+  inset:0;
+  opacity:.08;
+}
+
+#app{
+  position:relative;
+  width:100%;
+  height:100%;
+  padding:18px;
+  overflow:hidden;
+}
+
+.top{
+  height:34px;
+  border-bottom:1px solid #163d23;
+  color:#6d9d78;
+  font-size:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+#log{
+  height:calc(100% - 34px);
+  padding-top:12px;
+  overflow:hidden;
+  white-space:pre;
+  font-size:clamp(10px,1.15vw,14px);
+  line-height:1.42;
+}
+
+.green{color:#8cffaa}
+.cyan{color:#73e9ff}
+.yellow{color:#e4d76a}
+.red{
+  color:#ff5151;
+  text-shadow:0 0 9px rgba(255,40,40,.6);
+}
+
+.bar{
+  display:inline-block;
+  width:240px;
+  height:10px;
+  border:1px solid #315e3d;
+  padding:1px;
+  vertical-align:middle;
+}
+
+.fill{
+  display:block;
+  height:100%;
+  width:0;
+  background:#74ff94;
+  box-shadow:0 0 10px #74ff94;
+}
+
+#countdown{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.94);
+  color:#ff3434;
+  font-size:clamp(120px,28vw,300px);
+  text-shadow:0 0 35px red;
+}
+
+.hidden{display:none!important}
+
+.flash{
+  animation:flash .11s infinite;
+}
+
+.shake{
+  animation:shake .07s infinite;
+}
+
+@keyframes flash{
+  50%{opacity:.08}
+}
+
+@keyframes shake{
+  25%{transform:translate(3px,-2px)}
+  50%{transform:translate(-3px,2px)}
+  75%{transform:translate(2px,1px)}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div id="app">
+
+  <div class="top">
+    <span>runtime/diagnostic</span>
+    <span id="time">00:00.000</span>
+  </div>
+
+  <div id="log"></div>
+
+</div>
+
+<div id="countdown" class="hidden">3</div>
+
+
+<script>
+
+/* =========================================
+   CLOCK
+========================================= */
+
+const started = performance.now();
+
+setInterval(() => {
+
+  const t = performance.now() - started;
+
+  const s = Math.floor(t / 1000);
+  const ms = Math.floor(t % 1000);
+
+  document.getElementById("time").textContent =
+    `00:0${s}.${String(ms).padStart(3,"0")}`;
+
+}, 20);
+
+
+/* =========================================
+   AUDIO ENGINE
+========================================= */
+
+let audio = null;
+
+function initAudio(){
+
+  if(!audio){
+
+    audio = new (
+      window.AudioContext ||
+      window.webkitAudioContext
+    )();
+
+  }
+
+  if(audio.state === "suspended"){
+    audio.resume();
+  }
+}
+
+
+/* short terminal key sound */
+
+function keySound(){
+
+  if(!audio) return;
+
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+
+  osc.type = "square";
+  osc.frequency.value =
+    420 + Math.random() * 300;
+
+  gain.gain.setValueAtTime(
+    0.018,
+    audio.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    0.001,
+    audio.currentTime + .035
+  );
+
+  osc.connect(gain);
+  gain.connect(audio.destination);
+
+  osc.start();
+  osc.stop(audio.currentTime + .04);
+}
+
+
+/* scanning sound */
+
+function scanSound(){
+
+  if(!audio) return;
+
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+
+  osc.type = "sine";
+
+  osc.frequency.setValueAtTime(
+    350,
+    audio.currentTime
+  );
+
+  osc.frequency.exponentialRampToValueAtTime(
+    850,
+    audio.currentTime + .12
+  );
+
+  gain.gain.setValueAtTime(
+    .025,
+    audio.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audio.currentTime + .14
+  );
+
+  osc.connect(gain);
+  gain.connect(audio.destination);
+
+  osc.start();
+  osc.stop(audio.currentTime + .15);
+}
+
+
+/* warning sound */
+
+function warningSound(){
+
+  if(!audio) return;
+
+  [0, .18, .36].forEach(delay => {
+
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+
+    osc.type = "square";
+    osc.frequency.value = 880;
+
+    gain.gain.setValueAtTime(
+      .035,
+      audio.currentTime + delay
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      .001,
+      audio.currentTime + delay + .1
+    );
+
+    osc.connect(gain);
+    gain.connect(audio.destination);
+
+    osc.start(audio.currentTime + delay);
+    osc.stop(audio.currentTime + delay + .11);
+  });
+}
+
+
+/* countdown beep */
+
+function countdownSound(final=false){
+
+  if(!audio) return;
+
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+
+  osc.type = "square";
+
+  osc.frequency.value =
+    final ? 1200 : 650;
+
+  gain.gain.setValueAtTime(
+    final ? .07 : .04,
+    audio.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audio.currentTime + .18
+  );
+
+  osc.connect(gain);
+  gain.connect(audio.destination);
+
+  osc.start();
+  osc.stop(audio.currentTime + .2);
+}
+
+
+/* allow browser audio */
+
+document.addEventListener(
+  "click",
+  initAudio,
+  {once:true}
+);
+
+
+/* =========================================
+   MATRIX
+========================================= */
+
+const canvas =
+  document.getElementById("matrix");
+
+const ctx = canvas.getContext("2d");
+
+function resize(){
+
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+}
+
+resize();
+
+addEventListener("resize",resize);
+
+const chars =
+  "01ABCDEF#$%&@<>[]{}";
+
+let drops = [];
+
+function resetDrops(){
+
+  drops =
+    Array(
+      Math.floor(innerWidth / 15)
+    ).fill(1);
+}
+
+resetDrops();
+
+setInterval(() => {
+
+  ctx.fillStyle =
+    "rgba(0,0,0,.09)";
+
+  ctx.fillRect(
+    0,0,
+    canvas.width,
+    canvas.height
+  );
+
+  ctx.fillStyle="#19ff68";
+  ctx.font="14px monospace";
+
+  for(let i=0;i<drops.length;i++){
+
+    ctx.fillText(
+      chars[
+        Math.floor(
+          Math.random()*chars.length
+        )
+      ],
+      i*15,
+      drops[i]*15
+    );
+
+    if(
+      drops[i]*15 > canvas.height &&
+      Math.random() > .97
+    ){
+      drops[i]=0;
+    }
+
+    drops[i]++;
+  }
+
+},40);
+
+
+/* =========================================
+   TERMINAL
+========================================= */
+
+const log =
+  document.getElementById("log");
+
+function wait(ms){
+  return new Promise(r=>setTimeout(r,ms));
+}
+
+function line(text="",cls=""){
+
+  const d =
+    document.createElement("div");
+
+  d.className=cls;
+  d.textContent=text;
+
+  log.appendChild(d);
+
+  log.scrollTop=log.scrollHeight;
+
+  keySound();
+}
+
+
+/* =========================================
+   PROGRESS BAR
+========================================= */
+
+function progress(label,duration){
+
+  return new Promise(resolve => {
+
+    const d =
+      document.createElement("div");
+
+    const bar =
+      document.createElement("span");
+
+    const fill =
+      document.createElement("span");
+
+    bar.className="bar";
+    fill.className="fill";
+
+    bar.appendChild(fill);
+
+    d.append(
+      document.createTextNode(label+" "),
+      bar
+    );
+
+    log.appendChild(d);
+
+    scanSound();
+
+    const start =
+      performance.now();
+
+    function update(){
+
+      const p=Math.min(
+        1,
+        (performance.now()-start)/duration
+      );
+
+      fill.style.width =
+        (p*100)+"%";
+
+      if(p<1){
+
+        requestAnimationFrame(update);
+
+      }else{
+
+        resolve();
+      }
+    }
+
+    requestAnimationFrame(update);
+  });
+}
+
+
+/* =========================================
+   RANDOM TECHNICAL DATA
+========================================= */
+
+function hex(n=8){
+
+  const chars="0123456789ABCDEF";
+
+  let s="";
+
+  for(let i=0;i<n;i++){
+
+    s +=
+      chars[
+        Math.floor(
+          Math.random()*16
+        )
+      ];
+  }
+
+  return s;
+}
+
+const bytes=[
+  "7F 45 4C 46 02 01 01 00",
+  "48 8B 05 91 2A 00 00 48",
+  "31 C0 48 89 E7 E8 19 00",
+  "FF 25 72 10 00 00 90 90",
+  "0F 1F 84 00 00 00 00 00",
+  "55 48 89 E5 48 83 EC 30"
+];
+
+
+/* =========================================
+   MAIN SEQUENCE
+   LOGS ≈ 4–5 SEC
+   COUNTDOWN = EXACTLY 3 SEC
+========================================= */
+
+async function run(){
+
+  initAudio();
+
+  line(
+    "$ ./runtime --attach --quiet",
+    "cyan"
+  );
+
+  await wait(70);
+
+  line(
+    "[000] pid=4812 tid=07 arch=x86_64"
+  );
+
+  line(
+    "[001] ctx=0x"+hex(12)+
+    " sp=0x"+hex(12)
+  );
+
+  await wait(70);
+
+  for(let i=0;i<3;i++){
+
+    line(
+      `[${String(i+2).padStart(3,"0")}] `+
+      `0x00${hex(6)} `+
+      bytes[i]
+    );
+
+    await wait(65);
+  }
+
+  await progress(
+    "[005] resolving symbols",
+    280
+  );
+
+  for(let i=0;i<4;i++){
+
+    line(
+      `[${String(i+6).padStart(3,"0")}] `+
+      `map=0x${hex(8)} `+
+      `len=0x${hex(4)} `+
+      `perm=r-x`
+    );
+
+    await wait(60);
+  }
+
+  await progress(
+    "[010] parsing memory segments",
+    300
+  );
+
+  for(let i=0;i<5;i++){
+
+    line(
+      `[${String(i+11).padStart(3,"0")}] `+
+      `addr=0x${hex(12)} `+
+      `state=0x${hex(2)}`
+    );
+
+    await wait(55);
+  }
+
+  line(
+    `[016] checksum=0x${hex(8)} entropy=7.${hex(4)}`
+  );
+
+  await progress(
+    "[017] validating execution context",
+    300
+  );
+
+  line(
+    `[018] rsp=0x${hex(12)} rbp=0x${hex(12)}`
+  );
+
+  line(
+    `[019] flags=0x${hex(4)} state=0x${hex(2)}`
+  );
+
+  line(
+    `[020] nonce=${hex(24)}`
+  );
+
+  await wait(80);
+
+  line(
+    `[021] digest=${hex(32)}`,
+    "cyan"
+  );
+
+  await progress(
+    "[022] rebuilding state vector",
+    300
+  );
+
+  line(
+    `[023] frame=0x${hex(16)}`
+  );
+
+  line(
+    `[024] return=0x${hex(12)}`
+  );
+
+  await wait(90);
+
+  line(
+    "[025] state transition: 0x03 -> 0x04",
+    "green"
+  );
+
+  await progress(
+    "[026] committing state",
+    280
+  );
+
+  line(
+    `[027] seq=${hex(10)} status=0x${hex(2)}`
+  );
+
+  warningSound();
+
+  await wait(120);
+
+  line(
+    "[028] integrity boundary crossed",
+    "red"
+  );
+
+  document.body.classList.add("shake");
+
+  await wait(160);
+
+  document.body.classList.remove("shake");
+
+  line(
+    `[029] session=${hex(16)}`,
+    "cyan"
+  );
+
+  line(
+    "[030] transition pending...",
+    "yellow"
+  );
+
+  await wait(100);
+
+  line(
+    `[031] finalize=0x${hex(8)}`,
+    "red"
+  );
+
+  warningSound();
+
+  await wait(120);
+
+
+/* =========================================
+   3 SECOND COUNTDOWN
+========================================= */
+
+  const cd =
+    document.getElementById("countdown");
+
+  cd.classList.remove("hidden");
+
+  for(let n=3;n>=1;n--){
+
+    cd.textContent=n;
+
+    countdownSound(n===1);
+
+    if(n===1){
+      document.body.classList.add("shake");
+    }
+
+    await wait(1000);
+  }
+
+  cd.textContent="";
+
+  cd.classList.add("flash");
+
+  countdownSound(true);
+
+  await wait(350);
+
+
+/* =========================================
+   BLACKOUT
+========================================= */
+
+  document.body.innerHTML="";
+
+  document.body.style.background="#000";
+
+  document.body.style.cursor="none";
+
+  await wait(900);
+
+  window.close();
+}
+
+run();
+
+</script>
+
+</body>
+</html>
