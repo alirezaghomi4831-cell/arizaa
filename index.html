@@ -1,197 +1,61 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-
 <meta charset="utf-8">
-
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1"
->
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>runtime.log</title>
 
-
 <style>
-
-/* =========================================================
-   BASE
-========================================================= */
-
 *{
   box-sizing:border-box;
 }
 
-html,
-body{
-
+html,body{
   margin:0;
-
   width:100%;
   height:100%;
-
   overflow:hidden;
-
   background:#020403;
-
   color:#b7ffca;
-
-  font-family:
-    "Courier New",
-    Consolas,
-    monospace;
-
+  font-family:"Courier New",Consolas,monospace;
 }
 
 body{
-
-  text-shadow:
-    0 0 5px rgba(80,255,130,.28);
-
-  transition:
-    filter .03s linear;
-
+  text-shadow:0 0 5px rgba(80,255,130,.28);
 }
 
-
-/* =========================================================
-   MATRIX
-========================================================= */
-
-#matrix{
-
+canvas{
   position:fixed;
-
   inset:0;
-
-  width:100%;
-  height:100%;
-
-  opacity:.09;
-
-  pointer-events:none;
-
+  opacity:.08;
 }
-
-
-/* =========================================================
-   CRT OVERLAY
-========================================================= */
-
-#crt{
-
-  position:fixed;
-
-  inset:0;
-
-  z-index:50;
-
-  pointer-events:none;
-
-  background:
-
-    repeating-linear-gradient(
-      0deg,
-      rgba(0,0,0,0),
-      rgba(0,0,0,0) 2px,
-      rgba(0,0,0,.18) 3px
-    );
-
-  opacity:.42;
-
-}
-
-
-/* CRT vignette */
-
-#crt::after{
-
-  content:"";
-
-  position:absolute;
-
-  inset:0;
-
-  background:
-
-    radial-gradient(
-      ellipse at center,
-      transparent 50%,
-      rgba(0,0,0,.45) 100%
-    );
-
-}
-
-
-/* =========================================================
-   MAIN APP
-========================================================= */
 
 #app{
-
   position:relative;
-
   width:100%;
   height:100%;
-
   padding:18px;
-
   overflow:hidden;
-
 }
-
-
-/* =========================================================
-   TOP BAR
-========================================================= */
 
 .top{
-
   height:34px;
-
-  border-bottom:
-    1px solid #163d23;
-
+  border-bottom:1px solid #163d23;
   color:#6d9d78;
-
   font-size:12px;
-
   display:flex;
-
   justify-content:space-between;
-
   align-items:center;
-
 }
-
-
-/* =========================================================
-   LOG
-========================================================= */
 
 #log{
-
-  height:
-    calc(100% - 34px);
-
+  height:calc(100% - 34px);
   padding-top:12px;
-
   overflow:hidden;
-
   white-space:pre;
-
-  font-size:
-    clamp(10px,1.15vw,14px);
-
+  font-size:clamp(10px,1.15vw,14px);
   line-height:1.42;
-
 }
-
-
-/* =========================================================
-   COLORS
-========================================================= */
 
 .green{
   color:#8cffaa;
@@ -206,383 +70,194 @@ body{
 }
 
 .red{
-
   color:#ff5151;
-
-  text-shadow:
-    0 0 9px rgba(255,40,40,.6);
-
+  text-shadow:0 0 9px rgba(255,40,40,.6);
 }
 
-
-/* =========================================================
-   PROGRESS BAR
-========================================================= */
-
 .bar{
-
   display:inline-block;
-
   width:240px;
-
   height:10px;
-
-  border:
-    1px solid #315e3d;
-
+  border:1px solid #315e3d;
   padding:1px;
-
   vertical-align:middle;
-
 }
 
 .fill{
-
   display:block;
-
   height:100%;
-
   width:0;
-
   background:#74ff94;
-
-  box-shadow:
-    0 0 10px #74ff94;
-
+  box-shadow:0 0 10px #74ff94;
 }
-
-
-/* =========================================================
-   COUNTDOWN
-========================================================= */
 
 #countdown{
-
   position:fixed;
-
   inset:0;
-
-  z-index:200;
-
+  z-index:20;
   display:flex;
-
   align-items:center;
-
   justify-content:center;
-
-  background:
-    rgba(0,0,0,.94);
-
+  background:rgba(0,0,0,.94);
   color:#ff3434;
-
-  font-size:
-    clamp(120px,28vw,300px);
-
-  text-shadow:
-    0 0 35px red;
-
+  font-size:clamp(120px,28vw,300px);
+  text-shadow:0 0 35px red;
 }
 
-
-/* =========================================================
-   NETWORK PANEL
-========================================================= */
-
-#network{
-
-  position:fixed;
-
-  right:18px;
-
-  bottom:18px;
-
-  z-index:40;
-
-  width:230px;
-
-  padding:10px;
-
-  border:
-    1px solid #163d23;
-
-  background:
-    rgba(0,8,3,.78);
-
-  color:#477c54;
-
-  font-size:10px;
-
-  opacity:.8;
-
+.hidden{
+  display:none!important;
 }
 
-.net-title{
-
-  color:#6d9d78;
-
-  border-bottom:
-    1px solid #163d23;
-
-  padding-bottom:5px;
-
-  margin-bottom:6px;
-
+.flash{
+  animation:flash .11s infinite;
 }
 
-
-/* =========================================================
-   CAMERA INDICATOR
-========================================================= */
-
-#camera{
-
-  position:fixed;
-
-  right:18px;
-
-  top:58px;
-
-  z-index:40;
-
-  color:#ff5151;
-
-  font-size:10px;
-
-  opacity:.75;
-
+.shake{
+  animation:shake .07s infinite;
 }
 
-.cam-dot{
-
-  display:inline-block;
-
-  width:6px;
-  height:6px;
-
-  border-radius:50%;
-
-  background:#ff3030;
-
-  box-shadow:
-    0 0 8px red;
-
-  margin-right:5px;
-
-  animation:
-    camblink .5s infinite;
-
-}
-
-
-/* =========================================================
-   GLITCH
-========================================================= */
+/* =========================================
+   FINAL GLITCH
+========================================= */
 
 #glitch{
-
   position:fixed;
-
   inset:0;
-
-  z-index:500;
-
+  z-index:999;
   display:none;
-
   background:#000;
-
   pointer-events:none;
-
 }
 
-
 #glitch::before{
-
   content:"";
-
   position:absolute;
-
   inset:0;
 
   background:
-
     repeating-linear-gradient(
       0deg,
       transparent 0px,
       transparent 3px,
       rgba(255,255,255,.08) 4px
     );
-
 }
 
-
 #glitch::after{
-
   content:"";
-
   position:absolute;
-
   inset:0;
 
   background:
-
     linear-gradient(
       90deg,
       transparent 0%,
-      rgba(255,0,0,.28) 48%,
+      rgba(255,0,0,.25) 48%,
       transparent 52%
     );
-
 }
-
 
 .glitch-active{
-
   display:block!important;
+  animation:glitchScreen .08s infinite;
+}
 
-  animation:
-    glitchScreen .07s infinite;
+@keyframes glitchScreen{
 
+  0%{
+    transform:translate(0);
+    filter:none;
+  }
+
+  20%{
+    transform:translate(-12px,4px);
+    filter:hue-rotate(90deg) contrast(2);
+  }
+
+  40%{
+    transform:translate(10px,-3px);
+    filter:invert(.15) contrast(3);
+  }
+
+  60%{
+    transform:translate(-5px,7px);
+    filter:hue-rotate(180deg);
+  }
+
+  80%{
+    transform:translate(8px,-5px);
+    filter:contrast(4);
+  }
+
+  100%{
+    transform:translate(0);
+    filter:none;
+  }
 }
 
 
-/* =========================================================
+/* =========================================
    SYSTEM FAILURE
-========================================================= */
+========================================= */
 
 #crash{
-
   position:fixed;
-
   inset:0;
-
-  z-index:600;
+  z-index:1000;
 
   display:none;
 
   align-items:center;
-
   justify-content:center;
-
   flex-direction:column;
 
   background:#000;
 
   color:#ff3030;
 
+  font-family:"Courier New",monospace;
+
   text-align:center;
-
 }
-
 
 #crash.show{
-
   display:flex;
-
 }
 
-
 #crash .title{
-
-  font-size:
-    clamp(32px,6vw,80px);
+  font-size:clamp(32px,6vw,80px);
 
   font-weight:bold;
 
   letter-spacing:8px;
 
   text-shadow:
-
     0 0 10px red,
     0 0 30px red;
-
 }
 
-
 #crash .sub{
-
   margin-top:18px;
 
-  font-size:
-    clamp(11px,1.5vw,16px);
+  font-size:clamp(11px,1.5vw,16px);
 
   color:#777;
 
   letter-spacing:3px;
-
 }
 
-
-.cursor{
-
+#crash .cursor{
   display:inline-block;
 
   width:8px;
-
   height:18px;
 
   background:#ff3030;
 
   margin-left:5px;
 
-  animation:
-    blink .6s infinite;
-
+  animation:blink .6s infinite;
 }
-
-
-/* =========================================================
-   ANIMATIONS
-========================================================= */
-
-.flash{
-
-  animation:
-    flash .09s infinite;
-
-}
-
-
-.shake{
-
-  animation:
-    shake .055s infinite;
-
-}
-
-
-@keyframes shake{
-
-  0%{
-    transform:translate(0,0);
-  }
-
-  25%{
-    transform:translate(4px,-3px);
-  }
-
-  50%{
-    transform:translate(-4px,3px);
-  }
-
-  75%{
-    transform:translate(3px,2px);
-  }
-
-  100%{
-    transform:translate(0,0);
-  }
-
-}
-
-
-@keyframes flash{
-
-  50%{
-    opacity:.08;
-  }
-
-}
-
 
 @keyframes blink{
 
@@ -592,115 +267,37 @@ body{
 
 }
 
-
-@keyframes camblink{
+@keyframes flash{
 
   50%{
-    opacity:.15;
+    opacity:.08;
   }
 
 }
 
+@keyframes shake{
 
-@keyframes glitchScreen{
-
-  0%{
-
-    transform:
-      translate(0);
-
-    filter:none;
-
+  25%{
+    transform:translate(3px,-2px);
   }
 
-  15%{
-
-    transform:
-      translate(-14px,4px)
-      skewX(2deg);
-
-    filter:
-      hue-rotate(90deg)
-      contrast(2);
-
-  }
-
-  30%{
-
-    transform:
-      translate(12px,-4px);
-
-    filter:
-      invert(.15)
-      contrast(3);
-
-  }
-
-  45%{
-
-    transform:
-      translate(-7px,7px);
-
-    filter:
-      hue-rotate(180deg);
-
-  }
-
-  60%{
-
-    transform:
-      translate(9px,-5px);
-
-    filter:
-      contrast(4);
-
+  50%{
+    transform:translate(-3px,2px);
   }
 
   75%{
-
-    transform:
-      translate(-12px,2px);
-
-    filter:
-      saturate(3);
-
-  }
-
-  100%{
-
-    transform:
-      translate(0);
-
-    filter:none;
-
+    transform:translate(2px,1px);
   }
 
 }
-
-
-/* =========================================================
-   HIDDEN
-========================================================= */
-
-.hidden{
-
-  display:none!important;
-
-}
-
 </style>
-
 </head>
-
 
 <body>
 
-
 <canvas id="matrix"></canvas>
 
-
 <div id="app">
-
 
   <div class="top">
 
@@ -714,58 +311,18 @@ body{
 
   </div>
 
-
   <div id="log"></div>
 
-
 </div>
 
 
-<!-- CAMERA -->
-
-<div id="camera">
-
-  <span class="cam-dot"></span>
-
-  CAMERA DEVICE:
-  <span id="camText">
-    SCANNING
-  </span>
-
-</div>
-
-
-<!-- NETWORK -->
-
-<div id="network">
-
-  <div class="net-title">
-    NETWORK TRACE
-  </div>
-
-  <div id="netlog">
-    initializing...
-  </div>
-
-</div>
-
-
-<!-- COUNTDOWN -->
-
-<div
-  id="countdown"
-  class="hidden"
->
+<div id="countdown" class="hidden">
   3
 </div>
 
 
-<!-- GLITCH -->
-
 <div id="glitch"></div>
 
-
-<!-- CRASH -->
 
 <div id="crash">
 
@@ -774,343 +331,276 @@ body{
   </div>
 
   <div class="sub">
-
     runtime terminated unexpectedly
-
     <span class="cursor"></span>
-
   </div>
 
 </div>
 
 
-<!-- CRT -->
-
-<div id="crt"></div>
-
-
 <script>
 
-
-/* =========================================================
+/* =========================================
    CLOCK
-========================================================= */
+========================================= */
 
 const started =
   performance.now();
 
-
-setInterval(()=>{
+setInterval(() => {
 
   const t =
-    performance.now() -
-    started;
-
+    performance.now() - started;
 
   const s =
-    Math.floor(t/1000);
-
+    Math.floor(t / 1000);
 
   const ms =
-    Math.floor(t%1000);
-
+    Math.floor(t % 1000);
 
   document.getElementById(
     "time"
   ).textContent =
-    `00:${String(s).padStart(2,"0")}.${String(ms).padStart(3,"0")}`;
+    `00:0${s}.${String(ms).padStart(3,"0")}`;
 
 },20);
 
 
-/* =========================================================
-   AUDIO
-========================================================= */
+/* =========================================
+   AUDIO ENGINE
+========================================= */
 
 let audio=null;
 
 
 function initAudio(){
 
-  try{
+  if(!audio){
 
-    if(!audio){
+    audio =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
 
-      audio =
-        new (
-          window.AudioContext ||
-          window.webkitAudioContext
-        )();
+  }
 
-    }
+  if(
+    audio.state === "suspended"
+  ){
 
+    audio.resume();
 
-    if(
-      audio.state ===
-      "suspended"
-    ){
-
-      audio.resume();
-
-    }
-
-  }catch(e){}
+  }
 
 }
 
 
-/* =========================================================
+/* =========================================
    KEY SOUND
-========================================================= */
+========================================= */
 
 function keySound(){
 
   if(!audio) return;
 
+  const osc =
+    audio.createOscillator();
 
-  try{
+  const gain =
+    audio.createGain();
 
-    const osc =
-      audio.createOscillator();
+  osc.type="square";
 
-    const gain =
-      audio.createGain();
+  osc.frequency.value =
+    420 + Math.random()*300;
 
+  gain.gain.setValueAtTime(
+    .018,
+    audio.currentTime
+  );
 
-    osc.type="square";
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audio.currentTime+.035
+  );
 
+  osc.connect(gain);
 
-    osc.frequency.value =
-      420 +
-      Math.random()*300;
+  gain.connect(
+    audio.destination
+  );
 
+  osc.start();
 
-    gain.gain.setValueAtTime(
-      .018,
-      audio.currentTime
-    );
-
-
-    gain.gain.exponentialRampToValueAtTime(
-      .001,
-      audio.currentTime+.035
-    );
-
-
-    osc.connect(gain);
-
-    gain.connect(
-      audio.destination
-    );
-
-
-    osc.start();
-
-    osc.stop(
-      audio.currentTime+.04
-    );
-
-  }catch(e){}
+  osc.stop(
+    audio.currentTime+.04
+  );
 
 }
 
 
-/* =========================================================
-   SCAN SOUND
-========================================================= */
+/* =========================================
+   SCANNING SOUND
+========================================= */
 
 function scanSound(){
 
   if(!audio) return;
 
+  const osc =
+    audio.createOscillator();
 
-  try{
+  const gain =
+    audio.createGain();
 
-    const osc =
-      audio.createOscillator();
+  osc.type="sine";
 
-    const gain =
-      audio.createGain();
+  osc.frequency.setValueAtTime(
+    350,
+    audio.currentTime
+  );
 
+  osc.frequency.exponentialRampToValueAtTime(
+    850,
+    audio.currentTime+.12
+  );
 
-    osc.type="sine";
+  gain.gain.setValueAtTime(
+    .025,
+    audio.currentTime
+  );
 
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audio.currentTime+.14
+  );
 
-    osc.frequency.setValueAtTime(
-      350,
-      audio.currentTime
-    );
+  osc.connect(gain);
 
+  gain.connect(
+    audio.destination
+  );
 
-    osc.frequency.exponentialRampToValueAtTime(
-      850,
-      audio.currentTime+.12
-    );
+  osc.start();
 
-
-    gain.gain.setValueAtTime(
-      .025,
-      audio.currentTime
-    );
-
-
-    gain.gain.exponentialRampToValueAtTime(
-      .001,
-      audio.currentTime+.14
-    );
-
-
-    osc.connect(gain);
-
-    gain.connect(
-      audio.destination
-    );
-
-
-    osc.start();
-
-    osc.stop(
-      audio.currentTime+.15
-    );
-
-  }catch(e){}
+  osc.stop(
+    audio.currentTime+.15
+  );
 
 }
 
 
-/* =========================================================
-   WARNING
-========================================================= */
+/* =========================================
+   WARNING SOUND
+========================================= */
 
 function warningSound(){
 
   if(!audio) return;
 
+  [0,.18,.36].forEach(
+    delay=>{
 
-  try{
+      const osc =
+        audio.createOscillator();
 
-    [0,.18,.36].forEach(
-      delay=>{
+      const gain =
+        audio.createGain();
 
-        const osc =
-          audio.createOscillator();
+      osc.type="square";
 
-        const gain =
-          audio.createGain();
+      osc.frequency.value=880;
 
+      gain.gain.setValueAtTime(
+        .035,
+        audio.currentTime+delay
+      );
 
-        osc.type="square";
+      gain.gain.exponentialRampToValueAtTime(
+        .001,
+        audio.currentTime+delay+.1
+      );
 
-        osc.frequency.value=880;
+      osc.connect(gain);
 
+      gain.connect(
+        audio.destination
+      );
 
-        gain.gain.setValueAtTime(
-          .035,
-          audio.currentTime+delay
-        );
+      osc.start(
+        audio.currentTime+delay
+      );
 
+      osc.stop(
+        audio.currentTime+delay+.11
+      );
 
-        gain.gain.exponentialRampToValueAtTime(
-          .001,
-          audio.currentTime+
-          delay+
-          .1
-        );
-
-
-        osc.connect(gain);
-
-        gain.connect(
-          audio.destination
-        );
-
-
-        osc.start(
-          audio.currentTime+
-          delay
-        );
-
-
-        osc.stop(
-          audio.currentTime+
-          delay+
-          .11
-        );
-
-      }
-    );
-
-  }catch(e){}
+    }
+  );
 
 }
 
 
-/* =========================================================
+/* =========================================
    CRASH SOUND
-========================================================= */
+========================================= */
 
 function crashSound(){
 
   if(!audio) return;
 
 
-  try{
+  const osc =
+    audio.createOscillator();
 
-    const osc =
-      audio.createOscillator();
-
-    const gain =
-      audio.createGain();
+  const gain =
+    audio.createGain();
 
 
-    osc.type="sawtooth";
+  osc.type="sawtooth";
+
+  osc.frequency.setValueAtTime(
+    180,
+    audio.currentTime
+  );
+
+  osc.frequency.exponentialRampToValueAtTime(
+    35,
+    audio.currentTime+.7
+  );
 
 
-    osc.frequency.setValueAtTime(
-      190,
-      audio.currentTime
-    );
+  gain.gain.setValueAtTime(
+    .12,
+    audio.currentTime
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audio.currentTime+.7
+  );
 
 
-    osc.frequency.exponentialRampToValueAtTime(
-      28,
-      audio.currentTime+.75
-    );
+  osc.connect(gain);
+
+  gain.connect(
+    audio.destination
+  );
 
 
-    gain.gain.setValueAtTime(
-      .13,
-      audio.currentTime
-    );
+  osc.start();
 
-
-    gain.gain.exponentialRampToValueAtTime(
-      .001,
-      audio.currentTime+.75
-    );
-
-
-    osc.connect(gain);
-
-    gain.connect(
-      audio.destination
-    );
-
-
-    osc.start();
-
-    osc.stop(
-      audio.currentTime+.8
-    );
-
-  }catch(e){}
+  osc.stop(
+    audio.currentTime+.75
+  );
 
 }
 
 
-/* =========================================================
-   COUNTDOWN
-========================================================= */
+/* =========================================
+   COUNTDOWN SOUND
+========================================= */
 
 function countdownSound(
   final=false
@@ -1118,64 +608,61 @@ function countdownSound(
 
   if(!audio) return;
 
+  const osc =
+    audio.createOscillator();
 
-  try{
+  const gain =
+    audio.createGain();
 
-    const osc =
-      audio.createOscillator();
+  osc.type="square";
 
-    const gain =
-      audio.createGain();
+  osc.frequency.value =
+    final ? 1200 : 650;
 
+  gain.gain.setValueAtTime(
+    final ? .07 : .04,
+    audio.currentTime
+  );
 
-    osc.type="square";
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    audio.currentTime+.18
+  );
 
+  osc.connect(gain);
 
-    osc.frequency.value =
-      final
-      ? 1200
-      : 650;
+  gain.connect(
+    audio.destination
+  );
 
+  osc.start();
 
-    gain.gain.setValueAtTime(
-      final ? .07 : .04,
-      audio.currentTime
-    );
-
-
-    gain.gain.exponentialRampToValueAtTime(
-      .001,
-      audio.currentTime+.18
-    );
-
-
-    osc.connect(gain);
-
-    gain.connect(
-      audio.destination
-    );
-
-
-    osc.start();
-
-    osc.stop(
-      audio.currentTime+.2
-    );
-
-  }catch(e){}
+  osc.stop(
+    audio.currentTime+.2
+  );
 
 }
 
 
-/* =========================================================
+/* =========================================
+   ENABLE AUDIO
+========================================= */
+
+document.addEventListener(
+  "click",
+  initAudio,
+  {once:true}
+);
+
+
+/* =========================================
    MATRIX
-========================================================= */
+========================================= */
 
 const canvas =
   document.getElementById(
     "matrix"
   );
-
 
 const ctx =
   canvas.getContext("2d");
@@ -1183,10 +670,10 @@ const ctx =
 
 function resize(){
 
-  canvas.width =
+  canvas.width=
     innerWidth;
 
-  canvas.height =
+  canvas.height=
     innerHeight;
 
 }
@@ -1225,9 +712,8 @@ resetDrops();
 
 setInterval(()=>{
 
-  ctx.fillStyle =
+  ctx.fillStyle=
     "rgba(0,0,0,.09)";
-
 
   ctx.fillRect(
     0,
@@ -1237,11 +723,10 @@ setInterval(()=>{
   );
 
 
-  ctx.fillStyle =
+  ctx.fillStyle=
     "#19ff68";
 
-
-  ctx.font =
+  ctx.font=
     "14px monospace";
 
 
@@ -1268,11 +753,9 @@ setInterval(()=>{
 
 
     if(
-
       drops[i]*15 >
       canvas.height &&
       Math.random()>.97
-
     ){
 
       drops[i]=0;
@@ -1287,9 +770,9 @@ setInterval(()=>{
 },40);
 
 
-/* =========================================================
+/* =========================================
    TERMINAL
-========================================================= */
+========================================= */
 
 const log =
   document.getElementById(
@@ -1300,11 +783,7 @@ const log =
 function wait(ms){
 
   return new Promise(
-    resolve =>
-      setTimeout(
-        resolve,
-        ms
-      )
+    r=>setTimeout(r,ms)
   );
 
 }
@@ -1320,30 +799,23 @@ function line(
       "div"
     );
 
+  d.className=cls;
 
-  d.className =
-    cls;
-
-
-  d.textContent =
-    text;
-
+  d.textContent=text;
 
   log.appendChild(d);
 
-
-  log.scrollTop =
+  log.scrollTop=
     log.scrollHeight;
-
 
   keySound();
 
 }
 
 
-/* =========================================================
-   PROGRESS
-========================================================= */
+/* =========================================
+   PROGRESS BAR
+========================================= */
 
 function progress(
   label,
@@ -1358,12 +830,10 @@ function progress(
           "div"
         );
 
-
       const bar =
         document.createElement(
           "span"
         );
-
 
       const fill =
         document.createElement(
@@ -1371,17 +841,12 @@ function progress(
         );
 
 
-      bar.className =
-        "bar";
+      bar.className="bar";
+
+      fill.className="fill";
 
 
-      fill.className =
-        "fill";
-
-
-      bar.appendChild(
-        fill
-      );
+      bar.appendChild(fill);
 
 
       d.append(
@@ -1404,7 +869,7 @@ function progress(
 
       function update(){
 
-        const p =
+        const p=
           Math.min(
             1,
             (
@@ -1414,7 +879,7 @@ function progress(
           );
 
 
-        fill.style.width =
+        fill.style.width=
           (p*100)+"%";
 
 
@@ -1443,15 +908,14 @@ function progress(
 }
 
 
-/* =========================================================
-   HEX
-========================================================= */
+/* =========================================
+   RANDOM DATA
+========================================= */
 
 function hex(n=8){
 
-  const chars =
+  const chars=
     "0123456789ABCDEF";
-
 
   let s="";
 
@@ -1462,7 +926,7 @@ function hex(n=8){
     i++
   ){
 
-    s +=
+    s+=
       chars[
         Math.floor(
           Math.random()*16
@@ -1477,165 +941,31 @@ function hex(n=8){
 }
 
 
-/* =========================================================
-   NETWORK TRACE
-========================================================= */
+const bytes=[
 
-const netlog =
-  document.getElementById(
-    "netlog"
-  );
+  "7F 45 4C 46 02 01 01 00",
 
+  "48 8B 05 91 2A 00 00 48",
 
-const networkMessages=[
+  "31 C0 48 89 E7 E8 19 00",
 
-  "initializing network stack...",
+  "FF 25 72 10 00 00 90 90",
 
-  "interface eth0 detected",
+  "0F 1F 84 00 00 00 00 00",
 
-  "scanning route table...",
-
-  "gateway 192.168.1.1",
-
-  "resolving remote node...",
-
-  "node 01 reachable",
-
-  "node 02 reachable",
-
-  "packet stream detected",
-
-  "encrypted channel established",
-
-  "remote endpoint: 185."+hex(3)+"."+hex(3)+"."+hex(2),
-
-  "trace synchronization complete"
+  "55 48 89 E5 48 83 EC 30"
 
 ];
 
 
-let netIndex=0;
-
-
-async function networkTrace(){
-
-  while(
-    netIndex <
-    networkMessages.length
-  ){
-
-    netlog.textContent =
-      networkMessages[
-        netIndex
-      ];
-
-    netIndex++;
-
-    await wait(
-      230 +
-      Math.random()*220
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   FAKE CAMERA
-========================================================= */
-
-async function cameraSequence(){
-
-  const cam =
-    document.getElementById(
-      "camText"
-    );
-
-
-  await wait(700);
-
-  cam.textContent =
-    "DETECTING";
-
-
-  await wait(700);
-
-  cam.textContent =
-    "DEVICE FOUND";
-
-
-  await wait(900);
-
-  cam.textContent =
-    "ACCESSING";
-
-
-  await wait(850);
-
-  cam.textContent =
-    "DENIED";
-
-
-  cam.style.color =
-    "#6d9d78";
-
-}
-
-
-/* =========================================================
-   FULLSCREEN ATTEMPT
-========================================================= */
-
-async function fullscreen(){
-
-  try{
-
-    if(
-      !document.fullscreenElement
-    ){
-
-      await document.documentElement
-        .requestFullscreen();
-
-    }
-
-  }catch(e){
-
-    /*
-      Browsers may block
-      automatic fullscreen
-      without user interaction.
-    */
-
-  }
-
-}
-
-
-/* =========================================================
-   MAIN
-========================================================= */
+/* =========================================
+   MAIN SEQUENCE
+========================================= */
 
 async function run(){
 
-  /*
-    Visual sequence starts
-    immediately.
-  */
-
   initAudio();
 
-  fullscreen();
-
-  networkTrace();
-
-  cameraSequence();
-
-
-  /* =====================================================
-     START
-  ===================================================== */
 
   line(
     "$ ./runtime --attach --quiet",
@@ -1662,27 +992,17 @@ async function run(){
   await wait(70);
 
 
-  /* =====================================================
-     MEMORY
-  ===================================================== */
-
   for(
     let i=0;
-    i<4;
+    i<3;
     i++
   ){
 
     line(
       `[${String(i+2).padStart(3,"0")}] `+
       `0x00${hex(6)} `+
-      [
-        "7F 45 4C 46 02 01 01 00",
-        "48 8B 05 91 2A 00 00 48",
-        "31 C0 48 89 E7 E8 19 00",
-        "FF 25 72 10 00 00 90 90"
-      ][i]
+      bytes[i]
     );
-
 
     await wait(65);
 
@@ -1690,43 +1010,10 @@ async function run(){
 
 
   await progress(
-    "[006] resolving symbols",
-    300
+    "[005] resolving symbols",
+    280
   );
 
-
-  /* =====================================================
-     NETWORK
-  ===================================================== */
-
-  line(
-    "[007] opening encrypted channel...",
-    "cyan"
-  );
-
-
-  await wait(90);
-
-
-  line(
-    "[008] handshake=0x"+
-    hex(8)
-  );
-
-
-  line(
-    "[009] remote key="+
-    hex(32),
-    "cyan"
-  );
-
-
-  await wait(80);
-
-
-  /* =====================================================
-     MEMORY SEGMENTS
-  ===================================================== */
 
   for(
     let i=0;
@@ -1735,12 +1022,11 @@ async function run(){
   ){
 
     line(
-      `[${String(i+10).padStart(3,"0")}] `+
+      `[${String(i+6).padStart(3,"0")}] `+
       `map=0x${hex(8)} `+
       `len=0x${hex(4)} `+
       `perm=r-x`
     );
-
 
     await wait(60);
 
@@ -1748,59 +1034,54 @@ async function run(){
 
 
   await progress(
-    "[014] parsing memory segments",
-    320
+    "[010] parsing memory segments",
+    300
   );
 
 
-  /* =====================================================
-     CAMERA
-  ===================================================== */
+  for(
+    let i=0;
+    i<5;
+    i++
+  ){
 
-  line(
-    "[015] enumerating camera devices..."
-  );
+    line(
+      `[${String(i+11).padStart(3,"0")}] `+
+      `addr=0x${hex(12)} `+
+      `state=0x${hex(2)}`
+    );
 
+    await wait(55);
 
-  await wait(120);
-
-
-  line(
-    "[016] camera interface detected",
-    "yellow"
-  );
-
-
-  await wait(120);
+  }
 
 
   line(
-    "[017] device permission state=UNKNOWN"
+    `[016] checksum=0x${hex(8)} `+
+    `entropy=7.${hex(4)}`
   );
 
-
-  /* =====================================================
-     EXECUTION
-  ===================================================== */
 
   await progress(
-    "[018] validating execution context",
-    320
+    "[017] validating execution context",
+    300
   );
 
 
   line(
-    `[019] rsp=0x${hex(12)} rbp=0x${hex(12)}`
+    `[018] rsp=0x${hex(12)} `+
+    `rbp=0x${hex(12)}`
   );
 
 
   line(
-    `[020] flags=0x${hex(4)} state=0x${hex(2)}`
+    `[019] flags=0x${hex(4)} `+
+    `state=0x${hex(2)}`
   );
 
 
   line(
-    `[021] nonce=${hex(24)}`
+    `[020] nonce=${hex(24)}`
   );
 
 
@@ -1808,24 +1089,24 @@ async function run(){
 
 
   line(
-    `[022] digest=${hex(32)}`,
+    `[021] digest=${hex(32)}`,
     "cyan"
   );
 
 
   await progress(
-    "[023] rebuilding state vector",
-    320
+    "[022] rebuilding state vector",
+    300
   );
 
 
   line(
-    `[024] frame=0x${hex(16)}`
+    `[023] frame=0x${hex(16)}`
   );
 
 
   line(
-    `[025] return=0x${hex(12)}`
+    `[024] return=0x${hex(12)}`
   );
 
 
@@ -1833,19 +1114,20 @@ async function run(){
 
 
   line(
-    "[026] state transition: 0x03 -> 0x04",
+    "[025] state transition: 0x03 -> 0x04",
     "green"
   );
 
 
   await progress(
-    "[027] committing state",
-    300
+    "[026] committing state",
+    280
   );
 
 
   line(
-    `[028] seq=${hex(10)} status=0x${hex(2)}`
+    `[027] seq=${hex(10)} `+
+    `status=0x${hex(2)}`
   );
 
 
@@ -1855,12 +1137,8 @@ async function run(){
   await wait(120);
 
 
-  /* =====================================================
-     FAILURE
-  ===================================================== */
-
   line(
-    "[029] integrity boundary crossed",
+    "[028] integrity boundary crossed",
     "red"
   );
 
@@ -1870,7 +1148,7 @@ async function run(){
   );
 
 
-  await wait(180);
+  await wait(160);
 
 
   document.body.classList.remove(
@@ -1879,22 +1157,22 @@ async function run(){
 
 
   line(
-    `[030] session=${hex(16)}`,
+    `[029] session=${hex(16)}`,
     "cyan"
   );
 
 
   line(
-    "[031] transition pending...",
+    "[030] transition pending...",
     "yellow"
   );
 
 
-  await wait(110);
+  await wait(100);
 
 
   line(
-    `[032] finalize=0x${hex(8)}`,
+    `[031] finalize=0x${hex(8)}`,
     "red"
   );
 
@@ -1902,12 +1180,12 @@ async function run(){
   warningSound();
 
 
-  await wait(150);
+  await wait(120);
 
 
-  /* =====================================================
-     COUNTDOWN
-  ===================================================== */
+/* =========================================
+   3 SECOND COUNTDOWN
+========================================= */
 
   const cd =
     document.getElementById(
@@ -1926,18 +1204,14 @@ async function run(){
     n--
   ){
 
-    cd.textContent =
-      n;
-
+    cd.textContent=n;
 
     countdownSound(
       n===1
     );
 
 
-    if(
-      n===1
-    ){
+    if(n===1){
 
       document.body.classList.add(
         "shake"
@@ -1953,7 +1227,6 @@ async function run(){
 
   cd.textContent="";
 
-
   cd.classList.add(
     "flash"
   );
@@ -1962,12 +1235,12 @@ async function run(){
   countdownSound(true);
 
 
-  await wait(300);
+  await wait(350);
 
 
-  /* =====================================================
-     FINAL GLITCH
-  ===================================================== */
+/* =========================================
+   FINAL GLITCH
+========================================= */
 
   document.body.classList.remove(
     "shake"
@@ -1991,6 +1264,8 @@ async function run(){
     );
 
 
+  /* شدید شدن لرزش */
+
   document.body.classList.add(
     "shake"
   );
@@ -2006,41 +1281,33 @@ async function run(){
   crashSound();
 
 
-  /* rapid glitch */
+  /* Glitch سریع */
 
   for(
     let i=0;
-    i<14;
+    i<10;
     i++
   ){
 
-    await wait(55);
+    await wait(65);
 
 
     document.body.style.filter =
       i%2===0
-
-      ?
-
-      "invert(.22) contrast(3) saturate(2)"
-
-      :
-
-      "none";
+        ? "invert(.2) contrast(2.5)"
+        : "none";
 
   }
 
 
-  /* =====================================================
-     BLACKOUT
-  ===================================================== */
+  /* توقف لرزش */
 
   document.body.classList.remove(
     "shake"
   );
 
 
-  document.body.style.filter =
+  document.body.style.filter=
     "none";
 
 
@@ -2049,63 +1316,41 @@ async function run(){
   );
 
 
+  /* صفحه کاملاً سیاه */
+
   document.getElementById(
     "app"
-  ).style.display =
-    "none";
+  ).style.display="none";
 
 
-  document.getElementById(
-    "network"
-  ).style.display =
-    "none";
+  canvas.style.display="none";
 
 
-  document.getElementById(
-    "camera"
-  ).style.display =
-    "none";
-
-
-  canvas.style.display =
-    "none";
-
-
-  document.getElementById(
-    "crt"
-  ).style.display =
-    "none";
-
+  /* پیام Crash */
 
   await wait(120);
 
-
-  /* =====================================================
-     SYSTEM FAILURE
-  ===================================================== */
 
   crash.classList.add(
     "show"
   );
 
 
-  await wait(1900);
+  await wait(1800);
 
 
-  /* =====================================================
-     FINAL POWER OFF
-  ===================================================== */
+  /* خاموش شدن ناگهانی */
 
   crash.classList.remove(
     "show"
   );
 
 
-  document.body.style.background =
+  document.body.style.background=
     "#000";
 
 
-  document.body.style.cursor =
+  document.body.style.cursor=
     "none";
 
 
@@ -2113,8 +1358,8 @@ async function run(){
 
 
   /*
-    Attempt to close tab.
-    Normal browser tabs may refuse.
+     مرورگر معمولاً اجازه بستن
+     تب عادی را نمی‌دهد.
   */
 
   window.close();
@@ -2122,14 +1367,9 @@ async function run(){
 }
 
 
-/* =========================================================
-   START IMMEDIATELY
-========================================================= */
-
 run();
 
 </script>
 
 </body>
-
 </html>
